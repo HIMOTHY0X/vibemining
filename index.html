@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pond0x $WPOND Mining Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #timer {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+        }
+        #alert {
+            font-size: 36px;
+            color: #ff4500;
+            font-weight: bold;
+            display: none;
+            margin-top: 20px;
+            animation: flash 1s infinite;
+        }
+        @keyframes flash {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        #sync-info {
+            font-size: 18px;
+            color: #555;
+            margin-top: 20px;
+            text-align: center;
+        }
+        #sync-info a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        #sync-info a:hover {
+            text-decoration: underline;
+        }
+        #datetime {
+            font-size: 18px;
+            color: #555;
+            margin-top: 10px;
+            text-align: center;
+        }
+        #cluster-message {
+            font-size: 18px;
+            color: #555;
+            margin-top: 10px;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div id="timer">00:00</div>
+    <div id="alert">MINE HARDER</div>
+    <div id="cluster-message">mine in clustsers. together.</div>
+    <div id="datetime">Current Date and Time (EDT): Loading...</div>
+    <div id="sync-info">Synchronized to next 22-minute cycle on <a href="https://www.pond0x.com" target="_blank">Pond0x</a></div>
+
+    <script>
+        function startTimer() {
+            const cycleDuration = 22 * 60 * 1000; // 22 minutes in milliseconds
+            const alertDuration = 5000; // Alert shows for 5 seconds
+            const timerDisplay = document.getElementById('timer');
+            const alertDisplay = document.getElementById('alert');
+            const datetimeDisplay = document.getElementById('datetime');
+
+            function updateTimer() {
+                const now = new Date();
+                // Convert to EDT (UTC-4)
+                const options = {
+                    timeZone: 'America/New_York',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                };
+                const edtTime = now.toLocaleString('en-US', options);
+                datetimeDisplay.textContent = `Current Date and Time (EDT): ${edtTime}`;
+
+                // Calculate milliseconds since the start of the current 24-hour period in EDT
+                const startOfDay = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+                startOfDay.setHours(0, 0, 0, 0); // Set to midnight EDT
+                const msSinceStartOfDay = now - startOfDay;
+                // Calculate time remaining in the current 22-minute cycle
+                const msInCycle = msSinceStartOfDay % cycleDuration;
+                const msRemaining = cycleDuration - msInCycle;
+
+                // Convert to seconds and minutes
+                const secondsTotal = Math.floor(msRemaining / 1000);
+                const minutes = Math.floor(secondsTotal / 60);
+                const seconds = secondsTotal % 60;
+
+                // Display timer
+                timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                // Show "MINE HARDER" alert at the astart of each cycle (when remaining time is ~22:00)
+                if (msRemaining > cycleDuration - alertDuration) {
+                    alertDisplay.style.display = 'block';
+                } else {
+                    alertDisplay.style.display = 'none';
+                }
+            }
+
+            // Update timer every second
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        // Start the timer when the page loads
+        startTimer();
+    </script>
+</body>
+</html>
