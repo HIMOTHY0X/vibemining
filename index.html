@@ -456,7 +456,7 @@
                 // Get synchronized time
                 const now = new Date(Date.now() + timeOffset);
                 
-                // Convert to EDT (UTC-4)
+                // Convert to EDT for display
                 const options = {
                     timeZone: 'America/New_York',
                     year: 'numeric',
@@ -470,12 +470,20 @@
                 const edtTime = now.toLocaleString('en-US', options);
                 datetimeDisplay.textContent = `Current Date and Time (EDT): ${edtTime}`;
 
-                // Calculate milliseconds since the start of the current 24-hour period in EDT
-                const startOfDay = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-                startOfDay.setHours(0, 0, 0, 0); // Set to midnight EDT
-                const msSinceStartOfDay = now - startOfDay;
-                // Calculate time remaining in the current 22-minute cycle
-                const msInCycle = msSinceStartOfDay % cycleDuration;
+                // Get Eastern time for cycle calculations
+                const easternTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+                
+                // Calculate milliseconds since midnight Eastern Time
+                const startOfDayEastern = new Date(easternTime);
+                startOfDayEastern.setHours(0, 0, 0, 0);
+                
+                // Use UTC timestamps to avoid timezone conversion issues
+                const easternMidnightUTC = startOfDayEastern.getTime() - (easternTime.getTimezoneOffset() * 60000);
+                const currentUTC = now.getTime() - (now.getTimezoneOffset() * 60000);
+                const msSinceMidnightEastern = currentUTC - easternMidnightUTC;
+                
+                // Calculate time remaining in current 22-minute cycle
+                const msInCycle = msSinceMidnightEastern % cycleDuration;
                 const msRemaining = cycleDuration - msInCycle;
 
                 // Convert to seconds and minutes
@@ -486,7 +494,7 @@
                 // Display timer
                 timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-                // Show "MINE HARDER" alert at the start of each cycle (when remaining time is ~22:00)
+                // Show "MINE HARDER" alert at the start of each cycle
                 if (msRemaining > cycleDuration - alertDuration) {
                     alertDisplay.style.display = 'block';
                 } else {
