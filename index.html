@@ -5,70 +5,274 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>$WPOND VIBE MINING</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background: linear-gradient(135deg, #0a1828 0%, #1e3a5f 25%, #2d5f87 50%, #1e3a5f 75%, #0a1828 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            overflow: hidden;
+            position: relative;
         }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Bubble Container */
+        .bubble-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Bubble Styles */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3), rgba(173, 216, 230, 0.2));
+            box-shadow: 
+                inset -10px -10px 20px rgba(255, 255, 255, 0.1),
+                inset 10px 10px 20px rgba(0, 0, 0, 0.1),
+                0 0 20px rgba(173, 216, 230, 0.3);
+            animation: float linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(var(--drift)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Different bubble sizes */
+        .bubble.small {
+            width: 20px;
+            height: 20px;
+            animation-duration: 8s;
+            --drift: 50px;
+        }
+
+        .bubble.medium {
+            width: 40px;
+            height: 40px;
+            animation-duration: 12s;
+            --drift: 80px;
+        }
+
+        .bubble.large {
+            width: 60px;
+            height: 60px;
+            animation-duration: 16s;
+            --drift: 120px;
+        }
+
+        .bubble.xlarge {
+            width: 80px;
+            height: 80px;
+            animation-duration: 20s;
+            --drift: 150px;
+        }
+
+        /* Logo on top of timer box */
+        .logo-top {
+            position: absolute;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            opacity: 0.8;
+            z-index: 11;
+        }
+
+        /* Content Styling */
+        .content {
+            z-index: 10;
+            position: relative;
+            text-align: center;
+            background: rgba(13, 41, 69, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
         #timer {
             font-size: 48px;
             font-weight: bold;
-            color: #333;
+            color: #64d4ff;
+            text-shadow: 0 0 20px rgba(100, 212, 255, 0.5);
+            margin-bottom: 20px;
         }
+
         #alert {
             font-size: 36px;
-            color: #ff4500;
+            color: #ff6b35;
             font-weight: bold;
             display: none;
             margin-top: 20px;
             animation: flash 1s infinite;
+            text-shadow: 0 0 15px rgba(255, 107, 53, 0.7);
         }
+
         @keyframes flash {
             0% { opacity: 1; }
-            50% { opacity: 0; }
+            50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
+
         #sync-info {
             font-size: 18px;
-            color: #555;
+            color: #a8d8ea;
             margin-top: 20px;
             text-align: center;
         }
+
         #sync-info a {
-            color: #0066cc;
+            color: #64d4ff;
             text-decoration: none;
+            text-shadow: 0 0 5px rgba(100, 212, 255, 0.3);
         }
+
         #sync-info a:hover {
             text-decoration: underline;
+            text-shadow: 0 0 10px rgba(100, 212, 255, 0.6);
         }
+
         #datetime {
             font-size: 18px;
-            color: #555;
+            color: #a8d8ea;
             margin-top: 10px;
             text-align: center;
         }
+
         #cluster-message {
             font-size: 18px;
-            color: #555;
+            color: #87ceeb;
             margin-top: 10px;
             text-align: center;
             font-style: italic;
+            text-shadow: 0 0 8px rgba(135, 206, 235, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .logo-top {
+                width: 50px;
+                height: 50px;
+                top: -60px;
+            }
+            
+            .content {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            #timer {
+                font-size: 36px;
+            }
+            
+            #alert {
+                font-size: 28px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="timer">00:00</div>
-    <div id="alert">MINE HARDER</div>
-    <div id="cluster-message">mine in clusters. together.</div>
-    <div id="datetime">Current Date and Time (EDT): Loading...</div>
-    <div id="sync-info">-22 MINUTE VIBE MINING TIMER ON <a href="https://www.pond0x.com" target="_blank">PONDEX</a>-</div>
+    <div class="bubble-container" id="bubbleContainer"></div>
+    
+    <div class="content">
+        <!-- Simple Lily Pad -->
+        <div class="logo-top">
+            <svg width="100%" height="100%" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+                <!-- Green Lily Pad -->
+                <circle cx="30" cy="30" r="25" fill="#8BC34A"/>
+                <!-- Lily pad sections -->
+                <line x1="30" y1="5" x2="30" y2="55" stroke="#689F38" stroke-width="2"/>
+                <line x1="5" y1="30" x2="55" y2="30" stroke="#689F38" stroke-width="2"/>
+                <line x1="12.32" y1="12.32" x2="47.68" y2="47.68" stroke="#689F38" stroke-width="2"/>
+                <line x1="47.68" y1="12.32" x2="12.32" y2="47.68" stroke="#689F38" stroke-width="2"/>
+                <!-- Small decorative dots -->
+                <circle cx="50" cy="15" r="2.5" fill="#8BC34A"/>
+                <circle cx="53" cy="22" r="2" fill="#8BC34A"/>
+            </svg>
+        </div>
+        
+        <div id="timer">00:00</div>
+        <div id="alert">MINE HARDER</div>
+        <div id="cluster-message">mine in clusters. together.</div>
+        <div id="datetime">Current Date and Time (EDT): Loading...</div>
+        <div id="sync-info">-22 MINUTE VIBE MINING TIMER ON <a href="https://www.pond0x.com" target="_blank">PONDEX</a>-</div>
+    </div>
 
     <script>
+        // Bubble Generation
+        function createBubble() {
+            const bubble = document.createElement('div');
+            bubble.classList.add('bubble');
+            
+            // Random size
+            const sizes = ['small', 'medium', 'large', 'xlarge'];
+            const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+            bubble.classList.add(randomSize);
+            
+            // Random horizontal position
+            const randomX = Math.random() * window.innerWidth;
+            bubble.style.left = randomX + 'px';
+            
+            // Random animation delay
+            bubble.style.animationDelay = Math.random() * 5 + 's';
+            
+            // Random drift direction
+            const driftDirection = Math.random() > 0.5 ? 1 : -1;
+            const driftAmount = (Math.random() * 200 + 50) * driftDirection;
+            bubble.style.setProperty('--drift', driftAmount + 'px');
+            
+            document.getElementById('bubbleContainer').appendChild(bubble);
+            
+            // Remove bubble after animation completes
+            setTimeout(() => {
+                if (bubble.parentNode) {
+                    bubble.parentNode.removeChild(bubble);
+                }
+            }, 20000);
+        }
+
+        // Generate bubbles continuously
+        function startBubbleGeneration() {
+            createBubble();
+            setTimeout(startBubbleGeneration, Math.random() * 1000 + 500);
+        }
+
+        // Timer functionality (unchanged)
         function startTimer() {
             const cycleDuration = 22 * 60 * 1000; // 22 minutes in milliseconds
             const alertDuration = 5000; // Alert shows for 5 seconds
@@ -121,11 +325,13 @@
             setInterval(updateTimer, 1000);
         }
 
-        // Start the timer when the page loads
-        startTimer();
+        // Initialize everything when the page loads
+        window.addEventListener('load', () => {
+            startTimer();
+            startBubbleGeneration();
+        });
     </script>
 </body>
-
 </html>
 
 
