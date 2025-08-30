@@ -108,7 +108,7 @@
                 // Display timer
                 timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-                // Show "MINE HARDER" alert at the astart of each cycle (when remaining time is ~22:00)
+                // Show "MINE HARDER" alert at the start of each cycle (when remaining time is ~22:00)
                 if (msRemaining > cycleDuration - alertDuration) {
                     alertDisplay.style.display = 'block';
                 } else {
@@ -127,6 +127,7 @@
 </body>
 
 </html>
+
 
 
 
