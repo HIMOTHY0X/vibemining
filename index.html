@@ -202,6 +202,32 @@
             margin-bottom: 20px;
         }
 
+        /* Bubble Counter Styling */
+        #bubble-counter {
+            font-size: 24px;
+            color: #87ceeb;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(135, 206, 235, 0.5);
+            font-weight: 600;
+        }
+
+        #bubble-counter .count {
+            color: #64d4ff;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(100, 212, 255, 0.8);
+        }
+
+        @keyframes counterPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        #bubble-counter.pulse .count {
+            animation: counterPulse 0.3s ease;
+        }
+
         #alert {
             font-size: 36px;
             color: #ff6b35;
@@ -274,6 +300,14 @@
             #timer {
                 font-size: 36px;
             }
+
+            #bubble-counter {
+                font-size: 20px;
+            }
+
+            #bubble-counter .count {
+                font-size: 28px;
+            }
             
             #alert {
                 font-size: 28px;
@@ -303,6 +337,7 @@
         
         <div class="vibe-mining-title">VIBE MINING</div>
         <div id="timer">00:00</div>
+        <div id="bubble-counter">POPPED: <span class="count">0</span></div>
         <div id="alert">MINE HARDER</div>
         <div id="cluster-message">mine in clusters. together.</div>
         <div id="datetime">Current Date and Time (EDT): Loading...</div>
@@ -310,6 +345,27 @@
     </div>
 
     <script>
+        // Bubble counter
+        let bubbleCount = 0;
+        const counterDisplay = document.getElementById('bubble-counter');
+        const countSpan = counterDisplay.querySelector('.count');
+
+        function incrementBubbleCount() {
+            bubbleCount++;
+            countSpan.textContent = bubbleCount;
+            
+            // Add pulse animation
+            counterDisplay.classList.add('pulse');
+            setTimeout(() => {
+                counterDisplay.classList.remove('pulse');
+            }, 300);
+        }
+
+        function resetBubbleCount() {
+            bubbleCount = 0;
+            countSpan.textContent = bubbleCount;
+        }
+
         // Interactive bubble functionality
         function createBubble() {
             const bubble = document.createElement('div');
@@ -324,8 +380,8 @@
             const randomX = Math.random() * (window.innerWidth - 100); // Ensure bubble stays on screen
             bubble.style.left = randomX + 'px';
             
-            // Random animation delay
-            bubble.style.animationDelay = Math.random() * 5 + 's';
+            // Random animation delay (0 to 5 seconds)
+            bubble.style.animationDelay = (Math.random() * 5) + 's';
             
             // Random drift direction
             const driftDirection = Math.random() > 0.5 ? 1 : -1;
@@ -340,6 +396,9 @@
                     isPopped = true;
                     e.preventDefault();
                     e.stopPropagation();
+                    
+                    // Increment counter
+                    incrementBubbleCount();
                     
                     // Add popping animation
                     bubble.classList.add('popping');
@@ -362,12 +421,14 @@
             
             document.getElementById('bubbleContainer').appendChild(bubble);
             
-            // Remove bubble after animation completes (if not popped)
+            // Remove bubble after animation completes naturally (float off screen)
+            const animationDuration = parseInt(window.getComputedStyle(bubble).animationDuration) * 1000;
+            const animationDelay = parseFloat(bubble.style.animationDelay) * 1000;
             setTimeout(() => {
                 if (bubble.parentNode && !isPopped) {
                     bubble.parentNode.removeChild(bubble);
                 }
-            }, 20000);
+            }, animationDuration + animationDelay + 1000); // Add 1 second buffer
         }
 
         // Splash effect when bubbles are popped
@@ -420,6 +481,7 @@
             const timerDisplay = document.getElementById('timer');
             const alertDisplay = document.getElementById('alert');
             const datetimeDisplay = document.getElementById('datetime');
+            let lastCycleTime = 0; // Track when the cycle last reset
 
             // Function to get synchronized time
             async function getSynchronizedTime() {
@@ -485,6 +547,13 @@
                 // Calculate time remaining in current 22-minute cycle
                 const msInCycle = msSinceMidnightEastern % cycleDuration;
                 const msRemaining = cycleDuration - msInCycle;
+                const currentCycleTime = msSinceMidnightEastern - msInCycle;
+
+                // Check if we've entered a new cycle and reset the counter
+                if (lastCycleTime !== 0 && currentCycleTime !== lastCycleTime) {
+                    resetBubbleCount();
+                }
+                lastCycleTime = currentCycleTime;
 
                 // Convert to seconds and minutes
                 const secondsTotal = Math.floor(msRemaining / 1000);
@@ -514,10 +583,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
